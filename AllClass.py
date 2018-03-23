@@ -31,30 +31,53 @@ class ReLULayer(object):
         return dx
 
 class Affine(object):
-    '''
-    classdocs
-    '''
 
-
-    def __init__(self, W, b):
-        self.W = W
-        self.b = b
-        self.x = None
-        self.dW = None
-        self.db = None
+    def __init__(self, W1, b1, W2, b2):
+        self.W1 = W1
+        self.b1 = b1
+        self.x1 = None
+        self.dW1 = None
+        self.db1 = None
+        self.W2 = W2
+        self.b2 = b2
+        self.y1 = None
+        self.dW2 = None
+        self.db2 = None
         
-    def forward(self, x):
-        self.x =x
-        out = np.dot(x, self.W) + self.b
+    def firstForward(self, x1):
+        self.x1 =x1
+        v1 = np.dot(x1, self.W1) + self.b1
         
-        return out
+        return v1
     
-    def backward(self, dout):
-        dx = np.dot(dout, self.W.T)
-        self.dW = np.dot(self.x.T, dout)
-        self.db = np.sum(dout, axis=0)
+    def firstBackward(self, delta1):
+        #dx1 = np.dot(dout, self.W1.T)
+        transX = self.x1.reshape(3, 1)
+        transDelta1 = delta1.reshape(1,4)
+        self.dW1 = np.dot(transX, transDelta1)
+        print(self.dW1)
+        self.db1 = np.sum(delta1, axis=0)
+
+    
+    def secondForward(self, y1):
+        self.y1 =y1
+        v2 = np.dot(y1, self.W2) + self.b2
+    
+        return v2
+    
+    def secondBackward(self, delta2):
+#         TransitedW2 = self.W2.reshape(4,1)
+#         Transiteddelta = delta2.reshape(1,4)
+#         dy1 = np.dot(TransitedW2, Transiteddelta)
+        #dy1 = np.dot(self.W2, delta2)
+        error1 = self.W2*delta2
+
+        self.dW2 = self.y1*delta2
+        #print('y1.T', self.y1.T)
+        print('dW2', self.dW2)
+        self.db2 = np.sum(delta2, axis=0)
         
-        return dx
+        return error1
     
 class SigmoidLayer(object):
     '''
@@ -63,33 +86,35 @@ class SigmoidLayer(object):
 
 
     def __init__(self):
-        self.out = None
+        self.y2 = None
         self.t = None
     
-    def forward(self, x):
-        out = 1 / (1+np.exp(-x))
+    def forward(self, v1):
+        y1 = 1 / (1+np.exp(-v1))
                 
-        return out
+        return y1
     
-    def secondforward(self, x, t):
-        out = 1 / (1+np.exp(-x))
-        self.out = out
+    def secondForward(self, v2, t):
+        y2 = 1 / (1+np.exp(-v2))
+        self.y2 = y2
         self.t = t
         
-        return out
+        return y2
     
     def result(self):
-        return self.out
+        return self.y2
     
-    def backward(self, dout):
-        dx = dout*(1.0 - self.out)*self.out
+    def backward(self, error1, y1):
+        delta1 = error1*(1.0 - y1)*y1
         
-        return dx
+        return delta1
         
-    def lastBackward(self):
-        dx = (self.t-self.out)*(1.0 - self.out)*self.out        
+    def secondBackward(self):
+        batch_size = self.t.shape[0]
         
-        return dx
+        delta2 = (self.t-self.y2)*(1.0 - self.y2)*self.y2      
+        
+        return delta2
     
 class SoftmaxWithLoss(object):
     '''
