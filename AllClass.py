@@ -32,50 +32,51 @@ class ReLULayer(object):
 
 class Affine(object):
 
-    def __init__(self, W1, b1, W2, b2):
+    def __init__(self, W1, W2):
         self.W1 = W1
-        self.b1 = b1
+        #self.b1 = b1
         self.x1 = None
         self.dW1 = None
-        self.db1 = None
+        #self.db1 = None
         self.W2 = W2
-        self.b2 = b2
+        #self.b2 = b2
         self.y1 = None
         self.dW2 = None
-        self.db2 = None
+        #self.db2 = None
         
     def firstForward(self, x1):
         self.x1 =x1
-        v1 = np.dot(x1, self.W1) + self.b1
+        v1 = np.dot(x1, self.W1) #+ self.b1
         
         return v1
     
     def firstBackward(self, delta1):
         #dx1 = np.dot(dout, self.W1.T)
-        transX = self.x1.reshape(3, 1)
-        transDelta1 = delta1.reshape(1,4)
-        self.dW1 = np.dot(transX, transDelta1)
-        print(self.dW1)
-        self.db1 = np.sum(delta1, axis=0)
+        
+        
+        #transDelta1 = delta1.reshape(2,4)
+        self.dW1 = np.dot(self.x1.T, delta1)
+        #print(self.dW1)
+        #self.db1 = np.sum(delta1, axis=0)
 
     
     def secondForward(self, y1):
         self.y1 =y1
-        v2 = np.dot(y1, self.W2) + self.b2
+        v2 = np.dot(y1, self.W2) #+ self.b2
     
         return v2
     
     def secondBackward(self, delta2):
-#         TransitedW2 = self.W2.reshape(4,1)
-#         Transiteddelta = delta2.reshape(1,4)
-#         dy1 = np.dot(TransitedW2, Transiteddelta)
+        TransitedW2 = self.W2.reshape(1,4)
+        Transiteddelta = delta2.reshape(delta2.shape[0],1)
+        #dy1 = np.dot(TransitedW2, Transiteddelta)
         #dy1 = np.dot(self.W2, delta2)
-        error1 = self.W2*delta2
+        error1 = np.dot(Transiteddelta, TransitedW2)
 
-        self.dW2 = self.y1*delta2
+        self.dW2 = np.dot(delta2, self.y1)
         #print('y1.T', self.y1.T)
-        print('dW2', self.dW2)
-        self.db2 = np.sum(delta2, axis=0)
+        #print('dW2', self.dW2)
+        #self.db2 = np.sum(delta2, axis=0)
         
         return error1
     
@@ -112,7 +113,7 @@ class SigmoidLayer(object):
     def secondBackward(self):
         batch_size = self.t.shape[0]
         
-        delta2 = (self.t-self.y2)*(1.0 - self.y2)*self.y2      
+        delta2 = (self.t-self.y2)*(1.0 - self.y2)*self.y2/batch_size      
         
         return delta2
     
