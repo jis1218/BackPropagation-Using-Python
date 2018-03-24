@@ -13,15 +13,15 @@ class TwoLayerNet(object):
     def __init__(self):
         self.w1 = np.array([[0.3, 0.5, 0.8, 0.7], [0.2, 0.2, 0.2, 0.4], [0.1, 0.6, 0.4, 0.2]])
         self.w2 = np.array([0.5, 0.5, 0.5, 0.5])
-        #self.b1 = np.array([0.0, 0.0, 0.0, 0.0])
-        #self.b2 = np.array([0.0, 0.0, 0.0, 0.0])
+        self.b1 = np.array([0.5, 0.3, 0.2, 0.6])
+        self.b2 = np.array([0.2, 0.5, 0.1, 0.2])
         
         self.dW1 = None
         self.dW2 = None
-        #self.db1 = None
-        #self.db2 = None
+        self.db1 = None
+        self.db2 = None
         #self.soft = SoftmaxWithLoss()
-        self.affine = Affine(self.w1, self.w2)
+        self.affine = Affine(self.w1, self.w2, self.b1, self.b2)
 
         #self.relu = ReLULayer()
         self.sigmoid = SigmoidLayer()
@@ -67,7 +67,7 @@ class TwoLayerNet(object):
         dout = self.affine.firstBackward(delta1)
         #print('first conv backward', dout)
         
-        return self.affine.dW1, self.affine.dW2#, self.affine.db1, self.affine.db2
+        return self.affine.dW1, self.affine.dW2, self.affine.db1, self.affine.db2
             
     
     def firstLayer(self, x):

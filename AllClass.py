@@ -32,21 +32,21 @@ class ReLULayer(object):
 
 class Affine(object):
 
-    def __init__(self, W1, W2):
+    def __init__(self, W1, W2, b1, b2):
         self.W1 = W1
-        #self.b1 = b1
+        self.b1 = b1
         self.x1 = None
         self.dW1 = None
-        #self.db1 = None
+        self.db1 = None
         self.W2 = W2
-        #self.b2 = b2
+        self.b2 = b2
         self.y1 = None
         self.dW2 = None
-        #self.db2 = None
+        self.db2 = None
         
     def firstForward(self, x1):
         self.x1 =x1
-        v1 = np.dot(x1, self.W1) #+ self.b1
+        v1 = np.dot(x1, self.W1) + self.b1
         
         return v1
     
@@ -57,7 +57,7 @@ class Affine(object):
         #transDelta1 = delta1.reshape(2,4)
         self.dW1 = np.dot(self.x1.T, delta1)
         #print(self.dW1)
-        #self.db1 = np.sum(delta1, axis=0)
+        self.db1 = np.sum(delta1, axis=0)
 
     
     def secondForward(self, y1):
@@ -76,7 +76,7 @@ class Affine(object):
         self.dW2 = np.dot(delta2, self.y1)
         #print('y1.T', self.y1.T)
         #print('dW2', self.dW2)
-        #self.db2 = np.sum(delta2, axis=0)
+        self.db2 = np.sum(delta2, axis=0)
         
         return error1
     
