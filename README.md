@@ -140,3 +140,11 @@ if __name__ == '__main__':
     
     pass
 ```
+##### 모멘텀을 이용했더니 학습률이 현저하게 좋아졌다. 모멘텀을 적용하지 않았을 경우 특정 accuracy에 도달하기까지 대략 500번 걸리던 것이 모멘텀을 사용하니 100번 정도 걸렸다.
+```python
+    momentum_rate = 0.9
+    momentum = 0
+    momentum = momentum*momentum_rate - learning_rate*np.dot(x_batch.T, dx) 
+    W = W + momentum
+    #W = W - learning_rate*np.dot(x_batch.T, dx) 모멘텀을 사용하지 않았을 경우의 코드
+```
